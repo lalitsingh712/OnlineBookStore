@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart | Book Store</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" href="../static/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <a th:href="@{/}" href="/" class="logo">
+            <i class="fa-solid fa-book-open"></i> BookStore
+        </a>
+        <ul class="nav-links">
+            <li><a th:href="@{/}" href="/">Home</a></li>
+            <li th:if="${isAdmin}">
+                <a th:href="@{/admin}" href="/admin">Dashboard</a>
+            </li>
+            <li>
+                <a th:href="@{/cart}" href="/cart" style="color: var(--primary-color);">
+                    <i class="fa-solid fa-cart-shopping"></i> Cart
+                </a>
+            </li>
+            <li th:if="${isUser}" class="user-greeting">
+                <span style="color: var(--text-muted); margin-right: 10px;">
+                    Hi, <span th:text="${#authentication.name}" style="color: var(--primary-color); font-weight: 600;">User</span>
+                </span>
+                <a href="javascript:void(0)" onclick="logout()" class="btn btn-danger" style="padding: 6px 15px;">Logout</a>
+            </li>
+        </ul>
+    </nav>
+
+
+
+    <main>
+        <div class="card-container" style="max-width: 800px; margin: 0 auto;">
+            <h2 class="section-title"><i class="fa-solid fa-cart-shopping"></i> Your Shopping Cart</h2>
+            
+            <div class="cart-list">
+                <!-- Dynamic Cart Items -->
+                <div class="cart-item" th:each="item : ${cart.cartItems}">
+                    <div class="cart-item-info">
+                        <h4 th:text="${item.book.title}">Book Title</h4>
+                        <span style="color: var(--text-muted); font-size: 0.9rem;" th:text="${item.book.author}">Author</span>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">
+                            Quantity: <span th:text="${item.quantity}">1</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1.5rem;">
+                        <span style="font-weight: 700; font-size: 1.1rem; color: var(--primary-color);" th:text="'₹' + ${#numbers.formatDecimal(item.book.price * item.quantity, 1, 2)}">₹0.00</span>
+                        <button class="btn-danger" style="padding: 4px 10px; font-size: 0.85rem;" th:onclick="'removeFromCart(' + ${item.id} + ')'"><i class="fa-solid fa-trash"></i> Remove</button>
+                    </div>
+                </div>
+
+                <!-- Empty Cart State -->
+                <div th:if="${#lists.isEmpty(cart.cartItems)}" style="text-align: center; padding: 3rem 0;">
+                    <i class="fa-solid fa-cart-arrow-down" style="font-size: 3rem; color: var(--border-color); margin-bottom: 1rem; display: block;"></i>
+                    <p style="color: var(--text-muted);">Your cart is currently empty.</p>
+                    <a th:href="@{/}" href="/" class="btn" style="margin-top: 1rem;">Browse Books</a>
+                </div>
+            </div>
+
+            <div class="cart-summary" th:if="${!#lists.isEmpty(cart.cartItems)}">
+                <span>Total:</span>
+                <span style="color: var(--primary-color);" th:text="'₹' + ${#numbers.formatDecimal(totalPrice, 1, 2)}">₹0.00</span>
+            </div>
+            
+            <div style="text-align: right; margin-top: 1.5rem;" th:if="${!#lists.isEmpty(cart.cartItems)}">
+                <a th:href="@{/checkout}" href="/checkout" class="btn" style="padding: 12px 24px;">Proceed to Checkout</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Premium Footer Section -->
+    <footer class="site-footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>About Us</h4>
+                <p style="font-size: 0.9rem; line-height: 1.6;">BookStore is your premium online bookstore, bringing the world's finest public domain classics and academic resources right to your doorstep. Inspired by modern designs and driven by technology.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Categories</h4>
+                <ul>
+                    <li><a th:href="@{/#tech-section}" href="/#tech-section">Technology &amp; Systems</a></li>
+                    <li><a th:href="@{/#fiction-section}" href="/#fiction-section">Science Fiction</a></li>
+                    <li><a th:href="@{/#edu-section}" href="/#edu-section">Education &amp; Academics</a></li>
+                    <li><a th:href="@{/#fiction-section}" href="/#fiction-section">Literature Classics</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Help &amp; Support</h4>
+                <ul>
+                    <li><a th:href="@{/info/tracker}" href="/info/tracker">Track Orders</a></li>
+                    <li><a th:href="@{/info/shipping}" href="/info/shipping">Shipping Policy</a></li>
+                    <li><a th:href="@{/info/returns}" href="/info/returns">Cancellation &amp; Return</a></li>
+                    <li><a th:href="@{/info/faq}" href="/info/faq">FAQs</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact Us</h4>
+                <p style="font-size: 0.9rem; margin-bottom: 8px;">
+                    <a href="mailto:support@bookstore.com" style="color: inherit; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='inherit'">
+                        <i class="fa-solid fa-envelope" style="margin-right: 8px;"></i> support@bookstore.com
+                    </a>
+                </p>
+                <p style="font-size: 0.9rem; margin-bottom: 12px;">
+                    <a href="tel:+18001234567" style="color: inherit; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='inherit'">
+                        <i class="fa-solid fa-phone" style="margin-right: 8px;"></i> +1 (800) 123-4567
+                    </a>
+                </p>
+                <div class="footer-social-links">
+                    <a href="https://facebook.com" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="https://twitter.com" target="_blank"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="https://instagram.com" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://linkedin.com" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 BookStore Project. All rights reserved.</span>
+            <div class="footer-bottom-links">
+                <a th:href="@{/info/privacy}" href="/info/privacy">Privacy Policy</a>
+                <a th:href="@{/info/terms}" href="/info/terms">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        async function logout() {
+            document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            window.location.href = '/';
+        }
+
+        async function removeFromCart(itemId) {
+            if (!confirm('Are you sure you want to remove this item?')) return;
+            
+            try {
+                const response = await fetch('/api/cart/remove/' + itemId, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to remove item.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+
+
+</body>
+</html>

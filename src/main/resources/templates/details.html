@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${book.title} + ' | BookStore'">Book Details</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" href="../static/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a th:href="@{/}" href="/" class="logo">
+            <i class="fa-solid fa-book-open"></i> BookStore
+        </a>
+        <ul class="nav-links">
+            <li><a th:href="@{/}" href="/">Home</a></li>
+            <li th:if="${isAdmin}">
+                <a th:href="@{/admin}" href="/admin">Dashboard</a>
+            </li>
+            
+            <!-- Auth Links -->
+            <li th:if="${cartCount != null}">
+                <a th:href="@{/cart}" href="/cart">
+                    <i class="fa-solid fa-cart-shopping"></i> Cart
+                    <span class="cart-badge" th:text="${cartCount}">0</span>
+                </a>
+            </li>
+
+            <li th:if="${!isUser}">
+                <a th:href="@{/login}" href="/login" class="btn" style="padding: 6px 15px;">Sign In</a>
+            </li>
+            <li th:if="${!isUser}">
+                <a th:href="@{/register}" href="/register" class="btn btn-secondary" style="padding: 6px 15px;">Register</a>
+            </li>
+            
+            <li th:if="${isUser}" class="user-greeting">
+                <span style="color: var(--text-muted); margin-right: 10px;">
+                    Hi, <span th:text="${username}" style="color: var(--primary-color); font-weight: 600;">User</span>
+                </span>
+                <a href="javascript:void(0)" onclick="logout()" class="btn btn-danger" style="padding: 6px 15px;">Logout</a>
+            </li>
+        </ul>
+    </nav>
+
+
+
+    <!-- Product Details Section -->
+    <main>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+            <a th:href="@{/}" href="/" style="color: inherit; text-decoration: none;">Home</a> &gt; 
+            <span th:text="${book.category != null ? book.category.name : 'Books'}">Category</span> &gt; 
+            <span th:text="${book.title}" style="color: #212121; font-weight: 500;">Book Title</span>
+        </div>
+
+        <div class="detail-container">
+            <!-- Image & Action Buttons Column -->
+            <div class="detail-img-col">
+                <div class="detail-img-wrapper">
+                    <img class="detail-cover" th:src="${book.imageUrl}" src="https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=400&q=80" alt="Book Cover">
+                </div>
+                <div class="detail-actions">
+                    <button class="btn-fk btn-fk-cart" th:onclick="'addToCart(' + ${book.id} + ')'">
+                        <i class="fa-solid fa-cart-shopping"></i> Add to Cart
+                    </button>
+                    <button class="btn-fk btn-fk-buy" th:onclick="'buyNow(' + ${book.id} + ')'">
+                        <i class="fa-solid fa-bolt"></i> Buy Now
+                    </button>
+                </div>
+            </div>
+
+            <!-- Book Information Column -->
+            <div class="detail-info-col">
+                <h1 class="fk-title" th:text="${book.title}">Book Title</h1>
+                <div class="fk-author" th:text="'By ' + ${book.author}">By Author</div>
+
+                <!-- Rating -->
+                <div class="fk-rating-row">
+                    <span class="fk-badge-green">
+                        <span th:text="${avgRating > 0 ? #numbers.formatDecimal(avgRating, 1, 1) : '0.0'}">0.0</span> <i class="fa-solid fa-star" style="font-size: 0.75rem;"></i>
+                    </span>
+                    <span class="fk-rating-text"><span th:text="${reviewsCount}">0</span> Customer Reviews</span>
+                    <img src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-bn/img/fa_62676a.png" alt="FK Assured" style="height: 21px; margin-left: 10px;">
+                </div>
+
+                <!-- Price -->
+                <div class="fk-price-section">
+                    <span class="fk-price-main" th:text="'₹' + ${#numbers.formatDecimal(book.price, 1, 2)}">₹0.00</span>
+                    <span class="fk-price-original" th:text="'₹' + ${#numbers.formatDecimal(book.price * 1.25, 1, 2)}">₹0.00</span>
+                    <span class="fk-price-discount">20% off</span>
+                </div>
+
+                <!-- Offers -->
+                <div class="fk-section-header">Available Offers</div>
+                <ul class="fk-offers-list">
+                    <li><i class="fa-solid fa-tag"></i> <strong>Bank Offer:</strong> Get 10% Instant Discount on major Credit Cards</li>
+                    <li><i class="fa-solid fa-tag"></i> <strong>Combo Offer:</strong> Buy 2 or more books &amp; get extra 5% off</li>
+                    <li><i class="fa-solid fa-tag"></i> <strong>Partner Offer:</strong> Sign up today &amp; get a free audiobook worth ₹1,200</li>
+                </ul>
+
+                <!-- Description -->
+                <div class="fk-section-header">About the Book</div>
+                <div class="fk-description-box" th:text="'This is a premium-quality publication of ' + ${book.title} + ' written by ' + ${book.author} + '. Highly readable layout, complete with historical insights, annotations, and premium binding. Excellent choice for both academic analysis and personal collection.'">
+                    Book description goes here.
+                </div>
+
+                <!-- Specifications -->
+                <div class="fk-section-header">Specifications</div>
+                <table class="fk-specs-table">
+                    <tr>
+                        <td class="label-cell">Title</td>
+                        <td class="val-cell" th:text="${book.title}">Title</td>
+                    </tr>
+                    <tr>
+                        <td class="label-cell">Author</td>
+                        <td class="val-cell" th:text="${book.author}">Author</td>
+                    </tr>
+                    <tr>
+                        <td class="label-cell">Category</td>
+                        <td class="val-cell" th:text="${book.category != null ? book.category.name : 'General'}">Category</td>
+                    </tr>
+                    <tr>
+                        <td class="label-cell">Language</td>
+                        <td class="val-cell">English</td>
+                    </tr>
+                    <tr>
+                        <td class="label-cell">Format</td>
+                        <td class="val-cell">Hardcover / Paperback Standard Edition</td>
+                    </tr>
+                    <tr>
+                        <td class="label-cell">Publisher</td>
+                        <td class="val-cell">Public Domain / Bookstore Press Edition</td>
+                    </tr>
+                </table>
+
+                <!-- Reviews Section -->
+                <div class="fk-section-header" style="margin-top: 2rem;">Customer Reviews &amp; Ratings</div>
+                
+                <!-- Review List -->
+                <div class="reviews-list-container" style="margin-bottom: 1.5rem;">
+                    <div th:each="review : ${reviews}" style="border-bottom: 1px solid var(--border-color); padding: 12px 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span style="font-weight: 600; font-size: 0.95rem; color: #333;" th:text="${review.user.username}">User</span>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);" th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm')}">Date</span>
+                        </div>
+                        <div style="margin-bottom: 6px;">
+                            <span th:each="star : ${#numbers.sequence(1, 5)}" 
+                                  th:style="${star <= review.rating ? 'color: #ffc107;' : 'color: #e0e0e0;'}" 
+                                  style="font-size: 0.85rem; margin-right: 2px;"><i class="fa-solid fa-star"></i></span>
+                        </div>
+                        <p style="font-size: 0.9rem; color: #555; margin: 0; line-height: 1.5;" th:text="${review.comment}">Comment</p>
+                    </div>
+                    <div th:if="${#lists.isEmpty(reviews)}" style="padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;">
+                        No reviews yet. Be the first to write a review!
+                    </div>
+                </div>
+
+                <!-- Add Review Form -->
+                <div style="background: #fdfdfd; border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 2rem;">
+                    <h4 style="margin-top: 0; margin-bottom: 1rem; font-weight: 600; color: #212121;">Write a Review</h4>
+                    <div th:if="${isUser}">
+                        <form id="reviewForm">
+                            <input type="hidden" id="reviewBookId" th:value="${book.id}">
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 500;">Your Rating</label>
+                                <div class="star-rating-selector" style="display: flex; gap: 8px; font-size: 1.5rem; color: #ffc107; cursor: pointer;">
+                                    <i class="fa-solid fa-star star-btn" data-value="1" onclick="selectStars(1)" style="color: #ffc107;"></i>
+                                    <i class="fa-solid fa-star star-btn" data-value="2" onclick="selectStars(2)" style="color: #ffc107;"></i>
+                                    <i class="fa-solid fa-star star-btn" data-value="3" onclick="selectStars(3)" style="color: #ffc107;"></i>
+                                    <i class="fa-solid fa-star star-btn" data-value="4" onclick="selectStars(4)" style="color: #ffc107;"></i>
+                                    <i class="fa-solid fa-star star-btn" data-value="5" onclick="selectStars(5)" style="color: #ffc107;"></i>
+                                </div>
+                                <input type="hidden" id="reviewRatingVal" value="5">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 500;">Review Content</label>
+                                <textarea id="reviewComment" class="form-control" rows="3" placeholder="Share your experience reading this book..." required style="resize: vertical;"></textarea>
+                            </div>
+                            <button type="submit" class="btn" style="padding: 10px 20px;">Submit Review</button>
+                        </form>
+                    </div>
+                    <div th:if="${!isUser}" style="text-align: center; padding: 0.5rem 0;">
+                        <span style="color: var(--text-muted);">Please </span>
+                        <a th:href="@{/login}" href="/login" style="color: var(--primary-color); font-weight: 600; text-decoration: none;">Sign In</a>
+                        <span style="color: var(--text-muted);"> to submit a review.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Premium Footer Section -->
+    <footer class="site-footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>About Us</h4>
+                <p style="font-size: 0.9rem; line-height: 1.6;">BookStore is your premium online bookstore, bringing the world's finest public domain classics and academic resources right to your doorstep. Inspired by modern designs and driven by technology.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Categories</h4>
+                <ul>
+                    <li><a th:href="@{/#tech-section}" href="/#tech-section">Technology &amp; Systems</a></li>
+                    <li><a th:href="@{/#fiction-section}" href="/#fiction-section">Science Fiction</a></li>
+                    <li><a th:href="@{/#edu-section}" href="/#edu-section">Education &amp; Academics</a></li>
+                    <li><a th:href="@{/#fiction-section}" href="/#fiction-section">Literature Classics</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Help &amp; Support</h4>
+                <ul>
+                    <li><a th:href="@{/info/tracker}" href="/info/tracker">Track Orders</a></li>
+                    <li><a th:href="@{/info/shipping}" href="/info/shipping">Shipping Policy</a></li>
+                    <li><a th:href="@{/info/returns}" href="/info/returns">Cancellation &amp; Return</a></li>
+                    <li><a th:href="@{/info/faq}" href="/info/faq">FAQs</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact Us</h4>
+                <p style="font-size: 0.9rem; margin-bottom: 8px;">
+                    <a href="mailto:support@bookstore.com" style="color: inherit; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='inherit'">
+                        <i class="fa-solid fa-envelope" style="margin-right: 8px;"></i> support@bookstore.com
+                    </a>
+                </p>
+                <p style="font-size: 0.9rem; margin-bottom: 12px;">
+                    <a href="tel:+18001234567" style="color: inherit; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='inherit'">
+                        <i class="fa-solid fa-phone" style="margin-right: 8px;"></i> +1 (800) 123-4567
+                    </a>
+                </p>
+                <div class="footer-social-links">
+                    <a href="https://facebook.com" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="https://twitter.com" target="_blank"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="https://instagram.com" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://linkedin.com" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 BookStore Project. All rights reserved.</span>
+            <div class="footer-bottom-links">
+                <a th:href="@{/info/privacy}" href="/info/privacy">Privacy Policy</a>
+                <a th:href="@{/info/terms}" href="/info/terms">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- AI Chatbot Widget -->
+    <button class="chat-widget-btn" id="toggleChatBtn">
+        <i class="fa-solid fa-message"></i>
+    </button>
+
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <span>Customer Support Bot</span>
+            <i class="fa-solid fa-minus" id="closeChatBtn" style="cursor:pointer;"></i>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="chat-msg msg-ai">Hi! How can I help you find a book today?</div>
+        </div>
+        <div class="chat-footer">
+            <input type="text" id="chatInput" class="form-control" placeholder="Type a message..." style="border:none; padding:8px;">
+            <button class="btn" id="sendChatBtn" style="padding: 8px 12px;">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Add to Cart Confirmation Modal -->
+    <div class="modal-overlay" id="cartModalOverlay">
+        <div class="confirm-modal">
+            <div class="modal-icon"><i class="fa-solid fa-circle-check"></i></div>
+            <h3 class="modal-title">Added to Cart</h3>
+            <p class="modal-message">This book has been successfully added to your cart!</p>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-cancel" onclick="closeCartModal()">Continue Shopping</button>
+                <a href="/cart" class="modal-btn modal-btn-confirm" style="text-decoration:none;">Go to Cart</a>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+        const chatWindow = document.getElementById('chatWindow');
+        const toggleChatBtn = document.getElementById('toggleChatBtn');
+        const closeChatBtn = document.getElementById('closeChatBtn');
+        const chatInput = document.getElementById('chatInput');
+        const sendChatBtn = document.getElementById('sendChatBtn');
+        const chatBody = document.getElementById('chatBody');
+
+        async function addToCart(bookId) {
+            try {
+                const response = await fetch('/api/cart/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bookId: bookId, quantity: 1 })
+                });
+                
+                if (response.ok) {
+                    // Open confirmation modal instead of browser alert
+                    document.getElementById('cartModalOverlay').classList.add('active');
+                } else if (response.status === 401) {
+                    alert('Please login first.');
+                    window.location.href = '/login';
+                } else {
+                    alert('Failed to add book to cart.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function closeCartModal() {
+            document.getElementById('cartModalOverlay').classList.remove('active');
+            window.location.reload();
+        }
+
+        async function buyNow(bookId) {
+            try {
+                const response = await fetch('/api/cart/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bookId: bookId, quantity: 1 })
+                });
+                
+                if (response.ok) {
+                    window.location.href = '/cart';
+                } else if (response.status === 401) {
+                    alert('Please login first.');
+                    window.location.href = '/login';
+                } else {
+                    alert('Failed to buy book.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        toggleChatBtn.addEventListener('click', () => {
+            chatWindow.classList.add('active');
+            toggleChatBtn.style.display = 'none';
+        });
+
+        closeChatBtn.addEventListener('click', () => {
+            chatWindow.classList.remove('active');
+            toggleChatBtn.style.display = 'block';
+        });
+
+        async function sendChat() {
+            const userInput = chatInput.value.trim();
+            if (!userInput) return;
+
+            const userMsgHtml = `<div class="chat-msg msg-user">${userInput}</div>`;
+            chatBody.insertAdjacentHTML('beforeend', userMsgHtml);
+            chatInput.value = '';
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            const typingId = 'typing-' + Date.now();
+            const typingHtml = `<div class="chat-msg msg-ai" id="${typingId}">...typing...</div>`;
+            chatBody.insertAdjacentHTML('beforeend', typingHtml);
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bookName: userInput })
+                });
+
+                document.getElementById(typingId).remove();
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const aiHtml = `<div class="chat-msg msg-ai">${data.description}</div>`;
+                    chatBody.insertAdjacentHTML('beforeend', aiHtml);
+                } else {
+                    chatBody.insertAdjacentHTML('beforeend', `<div class="chat-msg msg-ai">Service unavailable at the moment.</div>`);
+                }
+            } catch (error) {
+                document.getElementById(typingId).remove();
+                chatBody.insertAdjacentHTML('beforeend', `<div class="chat-msg msg-ai">Network error. Please try again later.</div>`);
+            }
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        async function logout() {
+            document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            window.location.href = '/';
+        }
+
+        sendChatBtn.addEventListener('click', sendChat);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendChat();
+        });
+
+        function selectStars(rating) {
+            document.getElementById('reviewRatingVal').value = rating;
+            const stars = document.querySelectorAll('.star-rating-selector .star-btn');
+            stars.forEach((star, idx) => {
+                if (idx < rating) {
+                    star.style.color = '#ffc107';
+                } else {
+                    star.style.color = '#e0e0e0';
+                }
+            });
+        }
+
+        const reviewForm = document.getElementById('reviewForm');
+        if (reviewForm) {
+            reviewForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const bookId = parseInt(document.getElementById('reviewBookId').value);
+                const rating = parseInt(document.getElementById('reviewRatingVal').value);
+                const comment = document.getElementById('reviewComment').value.trim();
+                
+                const token = localStorage.getItem('token');
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (token) {
+                    headers['Authorization'] = 'Bearer ' + token;
+                }
+
+                try {
+                    const response = await fetch('/api/reviews/add', {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify({ bookId, rating, comment })
+                    });
+
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        try {
+                            const err = await response.json();
+                            alert(err.message || 'Failed to submit review.');
+                        } catch(pe) {
+                            alert('Failed to submit review.');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error submitting review:', error);
+                    alert('Network error. Please try again.');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

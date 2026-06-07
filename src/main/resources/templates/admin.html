@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Book Store</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" href="../static/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 1fr 2.5fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--surface-color);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .admin-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a th:href="@{/}" href="/" class="logo">
+            <i class="fa-solid fa-book-open"></i> BookStore <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: normal; margin-left: 10px;">| Admin</span>
+        </a>
+        <ul class="nav-links">
+            <li><a th:href="@{/}" href="/">Back to Store</a></li>
+            <li class="user-greeting">
+                <a href="javascript:void(0)" onclick="logout()" class="btn btn-danger" style="padding: 6px 15px;">Logout</a>
+            </li>
+        </ul>
+    </nav>
+
+    <main>
+        <h2 class="section-title">Dashboard</h2>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fa-solid fa-book"></i>
+                <div class="stat-info">
+                    <span class="stat-value" th:text="${bookCount}">0</span>
+                    <span class="stat-label">Total Books</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <div class="stat-info">
+                    <span class="stat-value" th:text="${orderCount}">0</span>
+                    <span class="stat-label">Total Orders</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fa-solid fa-users"></i>
+                <div class="stat-info">
+                    <span class="stat-value" th:text="${userCount}">0</span>
+                    <span class="stat-label">Total Users</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-layout">
+            <!-- Add Book Pane -->
+            <div class="card-container" style="align-self: start;">
+                <h3 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-plus-circle"></i> Add New Book</h3>
+                <form th:action="@{/api/admin/books/add}" action="#" method="POST">
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" class="form-control" placeholder="Book Title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Author</label>
+                        <input type="text" class="form-control" placeholder="Author Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Price (₹)</label>
+                        <input type="number" step="0.01" class="form-control" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select class="form-control">
+                            <option>Technology</option>
+                            <option>Fiction</option>
+                            <option>Education</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn" style="width: 100%; margin-top: 0.5rem;">Save Book</button>
+                </form>
+            </div>
+
+            <!-- Inventory List Pane -->
+            <div class="card-container">
+                <h3 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-list"></i> Inventory Management</h3>
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                    <tr th:each="book : ${recentBooks}">
+                        <td th:text="${book.id}">1</td>
+                        <td th:text="${book.title}">Mastering Spring Boot</td>
+                        <td th:text="${book.author}">J. Gosling</td>
+                        <td th:text="${book.category.name}">Technology</td>
+                        <td th:text="'₹' + ${#numbers.formatDecimal(book.price, 1, 2)}">₹55.99</td>
+                        <td>
+                            <button class="btn" style="padding: 4px 8px;"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn-danger" style="padding: 4px 8px;"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Premium Footer Section -->
+    <footer class="site-footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>About Us</h4>
+                <p style="font-size: 0.9rem; line-height: 1.6;">BookStore is your premium online bookstore, bringing the world's finest public domain classics and academic resources right to your doorstep. Inspired by modern designs and driven by technology.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Categories</h4>
+                <ul>
+                    <li><a th:href="@{/#tech-section}" href="/#tech-section">Technology &amp; Systems</a></li>
+                    <li><a th:href="@{/#fiction-section}" href="/#fiction-section">Science Fiction</a></li>
+                    <li><a th:href="@{/#edu-section}" href="/#edu-section">Education &amp; Academics</a></li>
+                    <li><a th:href="@{/#fiction-section}" href="/#fiction-section">Literature Classics</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Help &amp; Support</h4>
+                <ul>
+                    <li><a th:href="@{/info/tracker}" href="/info/tracker">Track Orders</a></li>
+                    <li><a th:href="@{/info/shipping}" href="/info/shipping">Shipping Policy</a></li>
+                    <li><a th:href="@{/info/returns}" href="/info/returns">Cancellation &amp; Return</a></li>
+                    <li><a th:href="@{/info/faq}" href="/info/faq">FAQs</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact Us</h4>
+                <p style="font-size: 0.9rem; margin-bottom: 8px;">
+                    <a href="mailto:support@bookstore.com" style="color: inherit; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='inherit'">
+                        <i class="fa-solid fa-envelope" style="margin-right: 8px;"></i> support@bookstore.com
+                    </a>
+                </p>
+                <p style="font-size: 0.9rem; margin-bottom: 12px;">
+                    <a href="tel:+18001234567" style="color: inherit; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='inherit'">
+                        <i class="fa-solid fa-phone" style="margin-right: 8px;"></i> +1 (800) 123-4567
+                    </a>
+                </p>
+                <div class="footer-social-links">
+                    <a href="https://facebook.com" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="https://twitter.com" target="_blank"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="https://instagram.com" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://linkedin.com" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 BookStore Project. All rights reserved.</span>
+            <div class="footer-bottom-links">
+                <a th:href="@{/info/privacy}" href="/info/privacy">Privacy Policy</a>
+                <a th:href="@{/info/terms}" href="/info/terms">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        async function logout() {
+            document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>

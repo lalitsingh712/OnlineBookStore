@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Secure Checkout | BookStore</title>
+		<link rel="stylesheet" th:href="@{/css/styles.css}" href="../static/css/styles.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+		<style>
+				.checkout-grid {
+						display: grid;
+						grid-template-columns: 1.6fr 1fr;
+						gap: 2rem;
+						max-width: 1200px;
+						margin: 2rem auto;
+						padding: 0 1.5rem;
+				}
+				@media (max-width: 768px) {
+						.checkout-grid {
+								grid-template-columns: 1fr;
+						}
+				}
+				.checkout-section-title {
+						font-size: 1.3rem;
+						font-weight: 600;
+						color: #212121;
+						margin-bottom: 1.5rem;
+						border-bottom: 1px solid var(--border-color);
+						padding-bottom: 0.75rem;
+						display: flex;
+						align-items: center;
+						gap: 10px;
+				}
+				.order-item-row {
+						display: flex;
+						justify-content: space-between;
+						padding: 10px 0;
+						border-bottom: 1px dashed var(--border-color);
+				}
+				.order-item-title {
+						font-weight: 500;
+						color: #333;
+						max-width: 250px;
+						white-space: nowrap;
+						overflow: hidden;
+						text-overflow: ellipsis;
+				}
+				.price-summary-box {
+						background: #fdfdfd;
+						border: 1px solid var(--border-color);
+						border-radius: 8px;
+						padding: 1.5rem;
+						box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+				}
+				.summary-row {
+						display: flex;
+						justify-content: space-between;
+						margin-bottom: 12px;
+						font-size: 0.95rem;
+						color: var(--text-muted);
+				}
+				.summary-row.total {
+						font-size: 1.2rem;
+						font-weight: 700;
+						color: var(--primary-color);
+						border-top: 1px solid var(--border-color);
+						padding-top: 12px;
+						margin-top: 12px;
+				}
+		</style>
+</head>
+<body>
+
+		<nav class="navbar">
+				<a th:href="@{/}" href="/" class="logo">
+						<i class="fa-solid fa-book-open"></i> BookStore
+				</a>
+				<ul class="nav-links">
+						<li><a th:href="@{/}" href="/">Home</a></li>
+						<li><a th:href="@{/cart}" href="/cart">Back to Cart</a></li>
+				</ul>
+		</nav>
+
+		<main>
+				<div class="checkout-grid">
+						<!-- Left: Billing & Shipping Details Form -->
+						<div class="card-container" style="margin: 0; padding: 2rem;">
+								<h2 class="checkout-section-title">
+										<i class="fa-solid fa-truck-fast"></i> Shipping &amp; Payment Details
+								</h2>
+								<form id="checkoutForm">
+										<div class="form-group">
+												<label><i class="fa-solid fa-user"></i> Full Name</label>
+												<input type="text" id="fullName" class="form-control" placeholder="John Doe" required>
+										</div>
+										<div class="form-group">
+												<label><i class="fa-solid fa-envelope"></i> Email Address</label>
+												<input type="email" id="email" class="form-control" placeholder="john.doe@example.com" required>
+										</div>
+										<div class="form-group">
+												<label><i class="fa-solid fa-location-dot"></i> Shipping Address</label>
+												<input type="text" id="shippingAddress" class="form-control" placeholder="123 Main St, City, Country" required>
+										</div>
+										<div class="form-group">
+												<label><i class="fa-solid fa-credit-card"></i> Credit Card Number</label>
+												<input type="text" id="ccNumber" class="form-control" placeholder="4111 2222 3333 4444" required>
+										</div>
+										<button type="submit" class="btn" style="width: 100%; padding: 14px; font-size: 1.1rem; margin-top: 1rem;">
+												<i class="fa-solid fa-shield-halved"></i> Authorize &amp; Pay
+										</button>
+								</form>
+						</div>
+
+						<!-- Right: Order Overview Box -->
+						<div class="price-summary-box">
+								<h2 class="checkout-section-title">
+										<i class="fa-solid fa-receipt"></i> Order Summary
+								</h2>
+								<div style="margin-bottom: 1.5rem; max-height: 250px; overflow-y: auto; padding-right: 5px;">
+										<div class="order-item-row" th:each="item : ${cart.cartItems}">
+												<div>
+														<div class="order-item-title" th:text="${item.book.title}">Book Title</div>
+														<span style="font-size: 0.8rem; color: var(--text-muted);" th:text="'Qty: ' + ${item.quantity}">Qty: 1</span>
+												</div>
+												<span style="font-weight: 600;" th:text="'₹' + ${#numbers.formatDecimal(item.book.price * item.quantity, 1, 2)}">₹0.00</span>
+										</div>
+										<div th:if="${#lists.isEmpty(cart.cartItems)}" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+												No items in cart.
+										</div>
+								</div>
+
+								<div class="summary-row">
+										<span>Items Subtotal:</span>
+										<span th:text="'₹' + ${#numbers.formatDecimal(totalPrice, 1, 2)}">₹0.00</span>
+								</div>
+								<div class="summary-row">
+										<span>Shipping:</span>
+										<span th:text="${totalPrice > 50.0 ? 'FREE' : '₹4.99'}" th:style="${totalPrice > 50.0 ? 'color: var(--success-color); font-weight: 600;' : ''}">₹4.99</span>
+								</div>
+								<div class="summary-row">
+										<span>Estimated Tax (5%):</span>
+										<span th:text="'₹' + ${#numbers.formatDecimal(totalPrice * 0.05, 1, 2)}">₹0.00</span>
+								</div>
+								<div class="summary-row total">
+										<span>Total Cost:</span>
+										<span id="finalCostDisplay" th:text="'₹' + ${#numbers.formatDecimal(totalPrice + (totalPrice > 50.0 ? 0.0 : 4.99) + (totalPrice * 0.05), 1, 2)}">₹0.00</span>
+								</div>
+						</div>
+				</div>
+		</main>
+
+    <!-- Premium Footer Section -->
+    <footer class="site-footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>About Us</h4>
+                <p style="font-size: 0.9rem; line-height: 1.6;">BookStore is your premium online bookstore, bringing the world's finest public domain classics and academic resources right to your doorstep. Inspired by modern designs and driven by technology.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Categories</h4>
+                <ul>
+                    <li><a th:href="@{/#tech-section}" href="/#tech-section">Technology &amp; Systems</a></li>
+                    <li><a th:href="@{/#fiction-section}" href="/#fiction-section">Science Fiction</a></li>
+                    <li><a th:href="@{/#edu-section}" href="/#edu-section">Education &amp; Academics</a></li>
+                    <li><a th:href="@{/#fiction-section}" href="/#fiction-section">Literature Classics</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Help &amp; Support</h4>
+                <ul>
+                    <li><a th:href="@{/info/tracker}" href="/info/tracker">Track Orders</a></li>
+                    <li><a th:href="@{/info/shipping}" href="/info/shipping">Shipping Policy</a></li>
+                    <li><a th:href="@{/info/returns}" href="/info/returns">Cancellation &amp; Return</a></li>
+                    <li><a th:href="@{/info/faq}" href="/info/faq">FAQs</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact Us</h4>
+                <p style="font-size: 0.9rem; margin-bottom: 8px;">
+                    <a href="mailto:support@bookstore.com" style="color: inherit; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='inherit'">
+                        <i class="fa-solid fa-envelope" style="margin-right: 8px;"></i> support@bookstore.com
+                    </a>
+                </p>
+                <p style="font-size: 0.9rem; margin-bottom: 12px;">
+                    <a href="tel:+18001234567" style="color: inherit; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='inherit'">
+                        <i class="fa-solid fa-phone" style="margin-right: 8px;"></i> +1 (800) 123-4567
+                    </a>
+                </p>
+                <div class="footer-social-links">
+                    <a href="https://facebook.com" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="https://twitter.com" target="_blank"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="https://instagram.com" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://linkedin.com" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 BookStore Project. All rights reserved.</span>
+            <div class="footer-bottom-links">
+                <a th:href="@{/info/privacy}" href="/info/privacy">Privacy Policy</a>
+                <a th:href="@{/info/terms}" href="/info/terms">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+		<!-- Order Success Modal Overlay -->
+		<div class="modal-overlay" id="orderModalOverlay">
+				<div class="confirm-modal" style="max-width: 500px; padding: 2.5rem;">
+						<div class="modal-icon" style="color: var(--success-color);"><i class="fa-solid fa-circle-check"></i></div>
+						<h3 class="modal-title" style="margin-bottom: 0.5rem;">Order Placed Successfully!</h3>
+						<p class="modal-message" style="margin-bottom: 1.5rem;">Thank you for shopping with BookStore. Your order has been completed and registered.</p>
+						
+						<!-- Receipt details -->
+						<div style="text-align: left; background: #f9f9f9; padding: 1rem; border-radius: 6px; font-size: 0.9rem; margin-bottom: 1.5rem; border: 1px solid var(--border-color);">
+								<div style="margin-bottom: 6px;"><strong>Order ID:</strong> <span id="receiptOrderId">#1001</span></div>
+								<div style="margin-bottom: 6px;"><strong>Amount Paid:</strong> <span id="receiptAmount">₹0.00</span></div>
+								<div><strong>Status:</strong> <span style="color: var(--success-color); font-weight:600;">COMPLETED</span></div>
+						</div>
+
+						<div class="modal-buttons" style="flex-direction: column; gap: 8px;">
+								<a href="/orders" class="modal-btn modal-btn-confirm" style="text-decoration:none; text-align: center; width: 100%;">View Order History</a>
+								<a href="/" class="modal-btn modal-btn-cancel" style="text-decoration:none; text-align: center; width: 100%;">Return to Catalog</a>
+						</div>
+				</div>
+		</div>
+
+		<!-- List of bookIds for submission -->
+		<script th:inline="javascript">
+				/*<![CDATA[*/
+				const bookIds = [];
+				/*[# th:each="item : ${cart.cartItems}"]*/
+				for(let i=0; i< /*[[${item.quantity}]]*/ 1; i++) {
+						bookIds.push(/*[[${item.book.id}]]*/);
+				}
+				/*[/]*/
+				/*]]>*/
+		</script>
+
+		<script>
+				document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
+						e.preventDefault();
+						if (bookIds.length === 0) {
+								alert('Your cart is empty.');
+								return;
+						}
+
+						const token = localStorage.getItem('token');
+						const headers = {
+								'Content-Type': 'application/json'
+						};
+						if (token) {
+								headers['Authorization'] = 'Bearer ' + token;
+						}
+
+						try {
+								const response = await fetch('/api/orders/place', {
+										method: 'POST',
+										headers: headers,
+										body: JSON.stringify({ bookIds: bookIds })
+								});
+
+								if (response.ok) {
+										const order = await response.json();
+										document.getElementById('receiptOrderId').innerText = '#' + order.id;
+										document.getElementById('receiptAmount').innerText = '₹' + order.totalAmount.toFixed(2);
+										
+										// Open receipt modal
+										document.getElementById('orderModalOverlay').classList.add('active');
+								} else {
+										alert('Failed to place order. Please try again.');
+								}
+						} catch (error) {
+								console.error('Error:', error);
+								alert('Network error. Please check your connection.');
+						}
+				});
+		</script>
+</body>
+</html>

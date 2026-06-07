@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Store | Catalog</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" href="../static/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a th:href="@{/}" href="/" class="logo">
+            <i class="fa-solid fa-book-open"></i> BookStore
+        </a>
+        <ul class="nav-links">
+            <li><a th:href="@{/}" href="/">Home</a></li>
+            <li th:if="${isAdmin}">
+                <a th:href="@{/admin}" href="/admin">Dashboard</a>
+            </li>
+            
+            <!-- Auth Links -->
+            <li th:if="${cartCount != null}">
+                <a th:href="@{/cart}" href="/cart">
+                    <i class="fa-solid fa-cart-shopping"></i> Cart
+                    <span class="cart-badge" th:text="${cartCount}">0</span>
+                </a>
+            </li>
+
+            <li th:if="${!isUser}">
+                <a th:href="@{/login}" href="/login" class="btn" style="padding: 6px 15px;">Sign In</a>
+            </li>
+            <li th:if="${!isUser}">
+                <a th:href="@{/register}" href="/register" class="btn btn-secondary" style="padding: 6px 15px;">Register</a>
+            </li>
+            
+            <li th:if="${isUser}" class="user-greeting">
+                <span style="color: var(--text-muted); margin-right: 10px;">
+                    Hi, <span th:text="${username}" style="color: var(--primary-color); font-weight: 600;">User</span>
+                </span>
+                <a href="javascript:void(0)" onclick="logout()" class="btn btn-danger" style="padding: 6px 15px;">Logout</a>
+            </li>
+        </ul>
+    </nav>
+
+
+
+    <!-- Hero Banner Section -->
+    <div class="hero-section">
+        <h1>Discover Your Next Great Read</h1>
+        <p>Explore thousands of timeless classics, academic resources, and premium titles in our collection.</p>
+        <form action="/" method="GET" class="hero-search-wrapper">
+            <input type="text" name="q" th:value="${searchQuery}" class="hero-search-input" placeholder="Search for books by title, author, or category...">
+            <button type="submit" class="hero-search-btn">
+                <i class="fa-solid fa-magnifying-glass"></i> Search
+            </button>
+        </form>
+    </div>
+
+    <!-- Main Catalog Section -->
+    <main>
+        <!-- Sorting Toolbar -->
+        <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 1.5rem; gap: 10px; font-size: 0.95rem; background: #fafafa; padding: 10px 15px; border-radius: 6px; border: 1px solid var(--border-color);">
+            <span style="color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-arrow-down-short-wide"></i> Sort Catalog by:</span>
+            <select id="sortSelect" onchange="applySort(this.value)" style="padding: 6px 12px; border-radius: 4px; border: 1px solid var(--border-color); background: white; font-weight: 500; color: #333; outline: none; cursor: pointer;">
+                <option value="" th:selected="${currentSort == null or currentSort == ''}">Default</option>
+                <option value="price_asc" th:selected="${currentSort == 'price_asc'}">Price: Low to High</option>
+                <option value="price_desc" th:selected="${currentSort == 'price_desc'}">Price: High to Low</option>
+                <option value="title_asc" th:selected="${currentSort == 'title_asc'}">Title: A-Z</option>
+            </select>
+        </div>
+
+        <!-- Search Results Section -->
+        <div th:if="${searchResults != null}">
+            <h2 class="section-title">Search Results for "<span th:text="${searchQuery}">query</span>"</h2>
+            <div class="book-grid" style="margin-bottom: 1.5rem;">
+                <div class="book-card" th:each="book : ${searchResults}">
+                    <a th:href="@{/book/{id}(id=${book.id})}" class="book-card-link">
+                        <img class="book-cover" th:src="${book.imageUrl}" src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=300&q=80" alt="Book Cover">
+                    </a>
+                    <div class="book-info">
+                        <a th:href="@{/book/{id}(id=${book.id})}" class="book-title-link">
+                            <h3 class="book-title" th:text="${book.title}">Book Title</h3>
+                        </a>
+                        <p class="book-author" th:text="${book.author}">Author</p>
+                        <div class="book-footer">
+                            <span class="book-price" th:text="'₹' + ${#numbers.formatDecimal(book.price, 1, 2)}">₹0.00</span>
+                            <button class="btn" th:onclick="'addToCart(' + ${book.id} + ')'"><i class="fa-solid fa-cart-plus"></i> Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${#lists.isEmpty(searchResults)}" style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--text-muted);">
+                    No books found matching your query.
+                </div>
+            </div>
+            <div style="margin-bottom: 3rem;">
+                <a th:href="@{/}" href="/" class="btn btn-secondary">Clear Search</a>
+            </div>
+        </div>
+
+        <!-- Technology Category -->
+        <h2 class="section-title" id="tech-section">Technology &amp; Systems</h2>
+        <div class="book-grid">
+            <!-- Dynamic Books -->
+            <div class="book-card" th:each="book : ${techBooks}">
+                <a th:href="@{/book/{id}(id=${book.id})}" class="book-card-link">
+                    <img class="book-cover" th:src="${book.imageUrl}" src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=300&q=80" alt="Book Cover">
+                </a>
+                <div class="book-info">
+                    <a th:href="@{/book/{id}(id=${book.id})}" class="book-title-link">
+                        <h3 class="book-title" th:text="${book.title}">Book Title</h3>
+                    </a>
+                    <p class="book-author" th:text="${book.author}">Author</p>
+                    <div class="book-footer">
+                        <span class="book-price" th:text="'₹' + ${#numbers.formatDecimal(book.price, 1, 2)}">₹0.00</span>
+                        <button class="btn" th:onclick="'addToCart(' + ${book.id} + ')'"><i class="fa-solid fa-cart-plus"></i> Add</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Fallback if empty -->
+            <div th:if="${#lists.isEmpty(techBooks)}" style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--text-muted);">
+                No books found in this category.
+            </div>
+        </div>
+
+        <!-- Fiction Category -->
+        <h2 class="section-title" id="fiction-section">Science Fiction</h2>
+        <div class="book-grid">
+            <div class="book-card" th:each="book : ${fictionBooks}">
+                <a th:href="@{/book/{id}(id=${book.id})}" class="book-card-link">
+                    <img class="book-cover" th:src="${book.imageUrl}" src="https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?auto=format&fit=crop&w=300&q=80" alt="Book Cover">
+                </a>
+                <div class="book-info">
+                    <a th:href="@{/book/{id}(id=${book.id})}" class="book-title-link">
+                        <h3 class="book-title" th:text="${book.title}">Book Title</h3>
+                    </a>
+                    <p class="book-author" th:text="${book.author}">Author</p>
+                    <div class="book-footer">
+                        <span class="book-price" th:text="'₹' + ${#numbers.formatDecimal(book.price, 1, 2)}">₹0.00</span>
+                        <button class="btn" th:onclick="'addToCart(' + ${book.id} + ')'"><i class="fa-solid fa-cart-plus"></i> Add</button>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(fictionBooks)}" style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--text-muted);">
+                No books found in this category.
+            </div>
+        </div>
+
+        <!-- Education Category -->
+        <h2 class="section-title" id="edu-section">Education</h2>
+        <div class="book-grid">
+            <div class="book-card" th:each="book : ${eduBooks}">
+                <a th:href="@{/book/{id}(id=${book.id})}" class="book-card-link">
+                    <img class="book-cover" th:src="${book.imageUrl}" src="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=300&q=80" alt="Book Cover">
+                </a>
+                <div class="book-info">
+                    <a th:href="@{/book/{id}(id=${book.id})}" class="book-title-link">
+                        <h3 class="book-title" th:text="${book.title}">Book Title</h3>
+                    </a>
+                    <p class="book-author" th:text="${book.author}">Author</p>
+                    <div class="book-footer">
+                        <span class="book-price" th:text="'₹' + ${#numbers.formatDecimal(book.price, 1, 2)}">₹0.00</span>
+                        <button class="btn" th:onclick="'addToCart(' + ${book.id} + ')'"><i class="fa-solid fa-cart-plus"></i> Add</button>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(eduBooks)}" style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--text-muted);">
+                No books found in this category.
+            </div>
+        </div>
+    </main>
+
+    <!-- Premium Footer Section -->
+    <footer class="site-footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>About Us</h4>
+                <p style="font-size: 0.9rem; line-height: 1.6;">BookStore is your premium online bookstore, bringing the world's finest public domain classics and academic resources right to your doorstep. Inspired by modern designs and driven by technology.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Categories</h4>
+                <ul>
+                    <li><a th:href="@{/#tech-section}" href="/#tech-section">Technology &amp; Systems</a></li>
+                    <li><a th:href="@{/#fiction-section}" href="/#fiction-section">Science Fiction</a></li>
+                    <li><a th:href="@{/#edu-section}" href="/#edu-section">Education &amp; Academics</a></li>
+                    <li><a th:href="@{/#fiction-section}" href="/#fiction-section">Literature Classics</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Help &amp; Support</h4>
+                <ul>
+                    <li><a th:href="@{/info/tracker}" href="/info/tracker">Track Orders</a></li>
+                    <li><a th:href="@{/info/shipping}" href="/info/shipping">Shipping Policy</a></li>
+                    <li><a th:href="@{/info/returns}" href="/info/returns">Cancellation &amp; Return</a></li>
+                    <li><a th:href="@{/info/faq}" href="/info/faq">FAQs</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact Us</h4>
+                <p style="font-size: 0.9rem; margin-bottom: 8px;">
+                    <a href="mailto:support@bookstore.com" style="color: inherit; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='inherit'">
+                        <i class="fa-solid fa-envelope" style="margin-right: 8px;"></i> support@bookstore.com
+                    </a>
+                </p>
+                <p style="font-size: 0.9rem; margin-bottom: 12px;">
+                    <a href="tel:+18001234567" style="color: inherit; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='inherit'">
+                        <i class="fa-solid fa-phone" style="margin-right: 8px;"></i> +1 (800) 123-4567
+                    </a>
+                </p>
+                <div class="footer-social-links">
+                    <a href="https://facebook.com" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="https://twitter.com" target="_blank"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="https://instagram.com" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://linkedin.com" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 BookStore Project. All rights reserved.</span>
+            <div class="footer-bottom-links">
+                <a th:href="@{/info/privacy}" href="/info/privacy">Privacy Policy</a>
+                <a th:href="@{/info/terms}" href="/info/terms">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- AI Chatbot Widget -->
+    <button class="chat-widget-btn" id="toggleChatBtn">
+        <i class="fa-solid fa-message"></i>
+    </button>
+
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <span>Customer Support Bot</span>
+            <i class="fa-solid fa-minus" id="closeChatBtn" style="cursor:pointer;"></i>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="chat-msg msg-ai">Hi! How can I help you find a book today?</div>
+        </div>
+        <div class="chat-footer">
+            <input type="text" id="chatInput" class="form-control" placeholder="Type a message..." style="border:none; padding:8px;">
+            <button class="btn" id="sendChatBtn" style="padding: 8px 12px;">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Add to Cart Confirmation Modal -->
+    <div class="modal-overlay" id="cartModalOverlay">
+        <div class="confirm-modal">
+            <div class="modal-icon"><i class="fa-solid fa-circle-check"></i></div>
+            <h3 class="modal-title">Added to Cart</h3>
+            <p class="modal-message">This book has been successfully added to your cart!</p>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-cancel" onclick="closeCartModal()">Continue Shopping</button>
+                <a href="/cart" class="modal-btn modal-btn-confirm" style="text-decoration:none;">Go to Cart</a>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+        const chatWindow = document.getElementById('chatWindow');
+        const toggleChatBtn = document.getElementById('toggleChatBtn');
+        const closeChatBtn = document.getElementById('closeChatBtn');
+        const chatInput = document.getElementById('chatInput');
+        const sendChatBtn = document.getElementById('sendChatBtn');
+        const chatBody = document.getElementById('chatBody');
+
+        async function addToCart(bookId) {
+            try {
+                const response = await fetch('/api/cart/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bookId: bookId, quantity: 1 })
+                });
+                
+                if (response.ok) {
+                    // Open confirmation modal instead of browser alert
+                    document.getElementById('cartModalOverlay').classList.add('active');
+                } else if (response.status === 401) {
+                    alert('Please login first.');
+                    window.location.href = '/login';
+                } else {
+                    alert('Failed to add book to cart.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function closeCartModal() {
+            document.getElementById('cartModalOverlay').classList.remove('active');
+            window.location.reload();
+        }
+
+        toggleChatBtn.addEventListener('click', () => {
+            chatWindow.classList.add('active');
+            toggleChatBtn.style.display = 'none';
+        });
+
+        closeChatBtn.addEventListener('click', () => {
+            chatWindow.classList.remove('active');
+            toggleChatBtn.style.display = 'block';
+        });
+
+        async function sendChat() {
+            const userInput = chatInput.value.trim();
+            if (!userInput) return;
+
+            const userMsgHtml = `<div class="chat-msg msg-user">${userInput}</div>`;
+            chatBody.insertAdjacentHTML('beforeend', userMsgHtml);
+            chatInput.value = '';
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            const typingId = 'typing-' + Date.now();
+            const typingHtml = `<div class="chat-msg msg-ai" id="${typingId}">...typing...</div>`;
+            chatBody.insertAdjacentHTML('beforeend', typingHtml);
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bookName: userInput })
+                });
+
+                document.getElementById(typingId).remove();
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const aiHtml = `<div class="chat-msg msg-ai">${data.description}</div>`;
+                    chatBody.insertAdjacentHTML('beforeend', aiHtml);
+                } else {
+                    chatBody.insertAdjacentHTML('beforeend', `<div class="chat-msg msg-ai">Service unavailable at the moment.</div>`);
+                }
+            } catch (error) {
+                document.getElementById(typingId).remove();
+                chatBody.insertAdjacentHTML('beforeend', `<div class="chat-msg msg-ai">Network error. Please try again later.</div>`);
+            }
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        async function logout() {
+            // Clear cookie
+            document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            window.location.href = '/';
+        }
+
+        function applySort(val) {
+            const url = new URL(window.location.href);
+            if (val) {
+                url.searchParams.set('sort', val);
+            } else {
+                url.searchParams.delete('sort');
+            }
+            window.location.href = url.toString();
+        }
+
+        sendChatBtn.addEventListener('click', sendChat);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendChat();
+        });
+    </script>
+</body>
+</html>
