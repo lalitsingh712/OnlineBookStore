@@ -655,14 +655,14 @@ main {
 
 .fk-title {
   font-size: 1.6rem;
-  font-weight: 500;
-  color: #212121;
+  font-weight: 700;
+  color: #ffffff;
   margin-bottom: 0.5rem;
 }
 
 .fk-author {
   font-size: 1.1rem;
-  color: #878787;
+  color: #9ca3af;
   margin-bottom: 0.8rem;
   font-weight: 500;
 }
@@ -675,7 +675,7 @@ main {
 }
 
 .fk-badge-green {
-  background: #388e3c;
+  background: #10b981;
   color: #fff;
   padding: 2px 6px;
   font-size: 0.75rem;
@@ -688,7 +688,7 @@ main {
 
 .fk-rating-text {
   font-size: 0.85rem;
-  color: #878787;
+  color: #9ca3af;
   font-weight: 600;
 }
 
@@ -703,26 +703,26 @@ main {
 
 .fk-price-main {
   font-size: 1.8rem;
-  font-weight: 600;
-  color: #212121;
+  font-weight: 700;
+  color: #ffffff;
 }
 
 .fk-price-original {
   font-size: 1.1rem;
-  color: #878787;
+  color: #9ca3af;
   text-decoration: line-through;
 }
 
 .fk-price-discount {
   font-size: 1.1rem;
-  color: #388e3c;
+  color: #10b981;
   font-weight: 600;
 }
 
 .fk-section-header {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #212121;
+  color: #ffffff;
   margin-bottom: 0.8rem;
 }
 
@@ -733,7 +733,7 @@ main {
 
 .fk-offers-list li {
   font-size: 0.9rem;
-  color: #212121;
+  color: #ffffff;
   margin-bottom: 8px;
   display: flex;
   align-items: flex-start;
@@ -741,14 +741,14 @@ main {
 }
 
 .fk-offers-list li i {
-  color: #16a34a;
+  color: #10b981;
   margin-top: 3px;
 }
 
 .fk-description-box {
   margin-bottom: 1.8rem;
   font-size: 0.95rem;
-  color: #212121;
+  color: #ffffff;
   line-height: 1.6;
 }
 
@@ -768,13 +768,13 @@ main {
 
 .fk-specs-table td.label-cell {
   width: 25%;
-  color: #878787;
+  color: #9ca3af;
   font-weight: 500;
-  background-color: #fcfcfc;
+  background-color: #1a1c23;
 }
 
 .fk-specs-table td.val-cell {
-  color: #212121;
+  color: #ffffff;
 }
 
 @media(max-width: 768px) {

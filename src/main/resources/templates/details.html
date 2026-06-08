@@ -12,46 +12,44 @@
     <!-- Navigation Bar -->
     <nav class="navbar">
         <a th:href="@{/}" href="/" class="logo">
-            <i class="fa-solid fa-book-open"></i> BookStore
+            BOOKSTORE
         </a>
+        
         <ul class="nav-links">
             <li><a th:href="@{/}" href="/">Home</a></li>
-            <li th:if="${isAdmin}">
-                <a th:href="@{/admin}" href="/admin">Dashboard</a>
-            </li>
-            
-            <!-- Auth Links -->
-            <li th:if="${cartCount != null}">
-                <a th:href="@{/cart}" href="/cart">
-                    <i class="fa-solid fa-cart-shopping"></i> Cart
-                    <span class="cart-badge" th:text="${cartCount}">0</span>
-                </a>
-            </li>
-
-            <li th:if="${!isUser}">
-                <a th:href="@{/login}" href="/login" class="btn" style="padding: 6px 15px;">Sign In</a>
-            </li>
-            <li th:if="${!isUser}">
-                <a th:href="@{/register}" href="/register" class="btn btn-secondary" style="padding: 6px 15px;">Register</a>
-            </li>
-            
-            <li th:if="${isUser}" class="user-greeting">
-                <span style="color: var(--text-muted); margin-right: 10px;">
-                    Hi, <span th:text="${username}" style="color: var(--primary-color); font-weight: 600;">User</span>
-                </span>
-                <a href="javascript:void(0)" onclick="logout()" class="btn btn-danger" style="padding: 6px 15px;">Logout</a>
-            </li>
+            <li><a th:href="@{/#tech-section}" href="/#tech-section">Browse</a></li>
+            <li><a th:href="@{/#fiction-section}" href="/#fiction-section">Bestsellers</a></li>
+            <li><a th:href="@{/#edu-section}" href="/#edu-section">New Arrivals</a></li>
+            <li><a th:href="@{/#fiction-section}" href="/#fiction-section">Genres</a></li>
+            <li><a th:href="@{/info/faq}" href="/info/faq">About</a></li>
+            <li th:if="${isAdmin}"><a th:href="@{/admin}" href="/admin">Admin</a></li>
         </ul>
+
+        <div class="nav-right">
+            <!-- Search Bar inside Navbar -->
+            <form action="/" method="GET" class="nav-search-form">
+                <i class="fa-solid fa-magnifying-glass nav-search-icon"></i>
+                <input type="text" name="q" th:value="${searchQuery}" class="nav-search-input" placeholder="Search...">
+            </form>
+            
+            <a th:href="@{/cart}" href="/cart" class="cart-icon-wrapper">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span class="cart-badge" th:text="${cartCount}">0</span>
+            </a>
+
+            <!-- User avatar or sign in -->
+            <a th:if="${!isUser}" th:href="@{/login}" href="/login" style="color:#fff; text-decoration:none; font-weight:600; font-size:0.9rem;">Sign In</a>
+            <img th:if="${isUser}" class="profile-avatar" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80" alt="Profile">
+            <a th:if="${isUser}" href="javascript:void(0)" onclick="logout()" style="color:#9ca3af; text-decoration:none; font-size:0.85rem; margin-left:-5px;">Logout</a>
+        </div>
     </nav>
-
-
 
     <!-- Product Details Section -->
     <main>
         <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
             <a th:href="@{/}" href="/" style="color: inherit; text-decoration: none;">Home</a> &gt; 
             <span th:text="${book.category != null ? book.category.name : 'Books'}">Category</span> &gt; 
-            <span th:text="${book.title}" style="color: #212121; font-weight: 500;">Book Title</span>
+            <span th:text="${book.title}" style="color: #ffffff; font-weight: 500;">Book Title</span>
         </div>
 
         <div class="detail-container">
@@ -141,7 +139,7 @@
                 <div class="reviews-list-container" style="margin-bottom: 1.5rem;">
                     <div th:each="review : ${reviews}" style="border-bottom: 1px solid var(--border-color); padding: 12px 0;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-weight: 600; font-size: 0.95rem; color: #333;" th:text="${review.user.username}">User</span>
+                            <span style="font-weight: 600; font-size: 0.95rem; color: #ffffff;" th:text="${review.user.username}">User</span>
                             <span style="font-size: 0.8rem; color: var(--text-muted);" th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm')}">Date</span>
                         </div>
                         <div style="margin-bottom: 6px;">
@@ -149,7 +147,7 @@
                                   th:style="${star <= review.rating ? 'color: #ffc107;' : 'color: #e0e0e0;'}" 
                                   style="font-size: 0.85rem; margin-right: 2px;"><i class="fa-solid fa-star"></i></span>
                         </div>
-                        <p style="font-size: 0.9rem; color: #555; margin: 0; line-height: 1.5;" th:text="${review.comment}">Comment</p>
+                        <p style="font-size: 0.9rem; color: #d1d5db; margin: 0; line-height: 1.5;" th:text="${review.comment}">Comment</p>
                     </div>
                     <div th:if="${#lists.isEmpty(reviews)}" style="padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;">
                         No reviews yet. Be the first to write a review!
@@ -157,8 +155,8 @@
                 </div>
 
                 <!-- Add Review Form -->
-                <div style="background: #fdfdfd; border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 2rem;">
-                    <h4 style="margin-top: 0; margin-bottom: 1rem; font-weight: 600; color: #212121;">Write a Review</h4>
+                <div style="background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 2rem;">
+                    <h4 style="margin-top: 0; margin-bottom: 1rem; font-weight: 600; color: #ffffff;">Write a Review</h4>
                     <div th:if="${isUser}">
                         <form id="reviewForm">
                             <input type="hidden" id="reviewBookId" th:value="${book.id}">
@@ -175,7 +173,7 @@
                             </div>
                             <div class="form-group" style="margin-bottom: 1rem;">
                                 <label style="display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 500;">Review Content</label>
-                                <textarea id="reviewComment" class="form-control" rows="3" placeholder="Share your experience reading this book..." required style="resize: vertical;"></textarea>
+                                <textarea id="reviewComment" class="form-control" rows="3" placeholder="Share your experience reading this book..." required style="resize: vertical; background: var(--bg-color); color: #fff; border: 1px solid var(--border-color);"></textarea>
                             </div>
                             <button type="submit" class="btn" style="padding: 10px 20px;">Submit Review</button>
                         </form>
@@ -191,55 +189,55 @@
     </main>
 
     <!-- Premium Footer Section -->
-    <footer class="site-footer">
-        <div class="footer-grid">
+    <footer class="site-footer" style="padding: 4rem 5% 2rem; background: #0b0c10; border-top: 1px solid var(--border-color); margin-top: 4rem;">
+        <div class="footer-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2.5rem; max-width: 1200px; margin: 0 auto 3rem;">
             <div class="footer-col">
-                <h4>About Us</h4>
-                <p style="font-size: 0.9rem; line-height: 1.6;">BookStore is your premium online bookstore, bringing the world's finest public domain classics and academic resources right to your doorstep. Inspired by modern designs and driven by technology.</p>
+                <h4 style="color: #fff; font-size: 1.1rem; margin-bottom: 1.2rem; font-weight: 600;">About Us</h4>
+                <p style="font-size: 0.9rem; line-height: 1.6; color: #9ca3af;">BookStore is your premium online bookstore, bringing the world's finest public domain classics and academic resources right to your doorstep. Inspired by modern designs and driven by technology.</p>
             </div>
             <div class="footer-col">
-                <h4>Categories</h4>
-                <ul>
-                    <li><a th:href="@{/#tech-section}" href="/#tech-section">Technology &amp; Systems</a></li>
-                    <li><a th:href="@{/#fiction-section}" href="/#fiction-section">Science Fiction</a></li>
-                    <li><a th:href="@{/#edu-section}" href="/#edu-section">Education &amp; Academics</a></li>
-                    <li><a th:href="@{/#fiction-section}" href="/#fiction-section">Literature Classics</a></li>
+                <h4 style="color: #fff; font-size: 1.1rem; margin-bottom: 1.2rem; font-weight: 600;">Categories</h4>
+                <ul style="list-style: none;">
+                    <li style="margin-bottom: 10px;"><a th:href="@{/#tech-section}" href="/#tech-section" style="color: #9ca3af; text-decoration: none; font-size: 0.9rem; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'">Technology &amp; Systems</a></li>
+                    <li style="margin-bottom: 10px;"><a th:href="@{/#fiction-section}" href="/#fiction-section" style="color: #9ca3af; text-decoration: none; font-size: 0.9rem; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'">Science Fiction</a></li>
+                    <li style="margin-bottom: 10px;"><a th:href="@{/#edu-section}" href="/#edu-section" style="color: #9ca3af; text-decoration: none; font-size: 0.9rem; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'">Education &amp; Academics</a></li>
+                    <li style="margin-bottom: 10px;"><a th:href="@{/#fiction-section}" href="/#fiction-section" style="color: #9ca3af; text-decoration: none; font-size: 0.9rem; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'">Literature Classics</a></li>
                 </ul>
             </div>
             <div class="footer-col">
-                <h4>Help &amp; Support</h4>
-                <ul>
-                    <li><a th:href="@{/info/tracker}" href="/info/tracker">Track Orders</a></li>
-                    <li><a th:href="@{/info/shipping}" href="/info/shipping">Shipping Policy</a></li>
-                    <li><a th:href="@{/info/returns}" href="/info/returns">Cancellation &amp; Return</a></li>
-                    <li><a th:href="@{/info/faq}" href="/info/faq">FAQs</a></li>
+                <h4 style="color: #fff; font-size: 1.1rem; margin-bottom: 1.2rem; font-weight: 600;">Help &amp; Support</h4>
+                <ul style="list-style: none;">
+                    <li style="margin-bottom: 10px;"><a th:href="@{/info/tracker}" href="/info/tracker" style="color: #9ca3af; text-decoration: none; font-size: 0.9rem; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'">Track Orders</a></li>
+                    <li style="margin-bottom: 10px;"><a th:href="@{/info/shipping}" href="/info/shipping" style="color: #9ca3af; text-decoration: none; font-size: 0.9rem; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'">Shipping Policy</a></li>
+                    <li style="margin-bottom: 10px;"><a th:href="@{/info/returns}" href="/info/returns" style="color: #9ca3af; text-decoration: none; font-size: 0.9rem; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'">Cancellation &amp; Return</a></li>
+                    <li style="margin-bottom: 10px;"><a th:href="@{/info/faq}" href="/info/faq" style="color: #9ca3af; text-decoration: none; font-size: 0.9rem; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'">FAQs</a></li>
                 </ul>
             </div>
             <div class="footer-col">
-                <h4>Contact Us</h4>
-                <p style="font-size: 0.9rem; margin-bottom: 8px;">
-                    <a href="mailto:support@bookstore.com" style="color: inherit; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='inherit'">
+                <h4 style="color: #fff; font-size: 1.1rem; margin-bottom: 1.2rem; font-weight: 600;">Contact Us</h4>
+                <p style="font-size: 0.9rem; margin-bottom: 8px; color: #9ca3af;">
+                    <a href="mailto:support@bookstore.com" style="color: inherit; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='inherit'">
                         <i class="fa-solid fa-envelope" style="margin-right: 8px;"></i> support@bookstore.com
                     </a>
                 </p>
-                <p style="font-size: 0.9rem; margin-bottom: 12px;">
-                    <a href="tel:+18001234567" style="color: inherit; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='inherit'">
+                <p style="font-size: 0.9rem; margin-bottom: 12px; color: #9ca3af;">
+                    <a href="tel:+18001234567" style="color: inherit; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='inherit'">
                         <i class="fa-solid fa-phone" style="margin-right: 8px;"></i> +1 (800) 123-4567
                     </a>
                 </p>
-                <div class="footer-social-links">
-                    <a href="https://facebook.com" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="https://twitter.com" target="_blank"><i class="fa-brands fa-twitter"></i></a>
-                    <a href="https://instagram.com" target="_blank"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="https://linkedin.com" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
+                <div class="footer-social-links" style="display: flex; gap: 12px; margin-top: 15px;">
+                    <a href="https://facebook.com" target="_blank" style="background: #1a1c23; color: #9ca3af; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: background 0.2s, color 0.2s; text-decoration: none;" onmouseover="this.style.background='var(--primary-color)'; this.style.color='#fff'" onmouseout="this.style.background='#1a1c23'; this.style.color='#9ca3af'"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="https://twitter.com" target="_blank" style="background: #1a1c23; color: #9ca3af; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: background 0.2s, color 0.2s; text-decoration: none;" onmouseover="this.style.background='var(--primary-color)'; this.style.color='#fff'" onmouseout="this.style.background='#1a1c23'; this.style.color='#9ca3af'"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="https://instagram.com" target="_blank" style="background: #1a1c23; color: #9ca3af; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: background 0.2s, color 0.2s; text-decoration: none;" onmouseover="this.style.background='var(--primary-color)'; this.style.color='#fff'" onmouseout="this.style.background='#1a1c23'; this.style.color='#9ca3af'"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://linkedin.com" target="_blank" style="background: #1a1c23; color: #9ca3af; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: background 0.2s, color 0.2s; text-decoration: none;" onmouseover="this.style.background='var(--primary-color)'; this.style.color='#fff'" onmouseout="this.style.background='#1a1c23'; this.style.color='#9ca3af'"><i class="fa-brands fa-linkedin-in"></i></a>
                 </div>
             </div>
         </div>
-        <div class="footer-bottom">
+        <div class="footer-bottom" style="border-top: 1px solid #1a1c23; padding-top: 2rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; max-width: 1200px; margin: 0 auto; color: #9ca3af;">
             <span>&copy; 2026 BookStore Project. All rights reserved.</span>
-            <div class="footer-bottom-links">
-                <a th:href="@{/info/privacy}" href="/info/privacy">Privacy Policy</a>
-                <a th:href="@{/info/terms}" href="/info/terms">Terms of Service</a>
+            <div class="footer-bottom-links" style="display: flex; gap: 20px;">
+                <a th:href="@{/info/privacy}" href="/info/privacy" style="color: #9ca3af; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='9ca3af'">Privacy Policy</a>
+                <a th:href="@{/info/terms}" href="/info/terms" style="color: #9ca3af; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='9ca3af'">Terms of Service</a>
             </div>
         </div>
     </footer>
