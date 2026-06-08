@@ -119,7 +119,7 @@
 										<div>
 												<span style="font-weight: 600; font-size: 1.05rem;" th:text="'Order #' + ${order.id}">Order #1001</span>
 												<div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
-														Placed on: <span th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}">2026-06-07</span>
+														Placed on: <span th:text="${#temporals.format(order.createdAt, 'yyyy-MM-dd HH:mm')}">2026-06-07</span>
 												</div>
 										</div>
 										<div style="text-align: right; display: flex; align-items: center; gap: 15px;">
