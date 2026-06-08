@@ -2,7 +2,11 @@
 
 A state-of-the-art, premium online bookstore web application built using **Spring Boot**, **Thymeleaf**, and **Spring Security** with **JWT authentication**. The user interface is designed with a sleek, premium, responsive layout featuring modern aesthetics, subtle micro-animations, and dynamic shopping features.
 
-![BookStore Mockup](assets/bookstore_mockup.png)
+### 🖥️ Preview & Design Mockups
+
+| Catalog Dashboard | Shopping Cart & Checkout | Login & Registration |
+| :---: | :---: | :---: |
+| ![BookStore Mockup](assets/bookstore_mockup.png) | ![Cart & Checkout](assets/cart_checkout_mockup.png) | ![Login & Register](assets/login_register_mockup.jpg) |
 
 ---
 
