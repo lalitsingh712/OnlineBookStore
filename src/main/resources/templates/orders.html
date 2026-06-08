@@ -99,8 +99,13 @@
 
             <!-- User avatar or sign in -->
             <a th:if="${!isUser}" th:href="@{/login}" href="/login" style="color:#fff; text-decoration:none; font-weight:600; font-size:0.9rem;">Sign In</a>
-            <img th:if="${isUser}" class="profile-avatar" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80" alt="Profile">
-            <a th:if="${isUser}" href="javascript:void(0)" onclick="logout()" style="color:#9ca3af; text-decoration:none; font-size:0.85rem; margin-left:-5px;">Logout</a>
+            <div th:if="${isUser}" style="display: flex; align-items: center; gap: 10px;">
+                <a th:href="@{/orders}" href="/orders" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+                    <span style="color: #fff; font-weight: 500; font-size: 0.9rem;">Hi, <span th:text="${username}">User</span></span>
+                    <img class="profile-avatar" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80" alt="Profile">
+                </a>
+                <a href="javascript:void(0)" onclick="logout()" style="color:#9ca3af; text-decoration:none; font-size:0.85rem; margin-left:5px;">Logout</a>
+            </div>
         </div>
     </nav>
 
